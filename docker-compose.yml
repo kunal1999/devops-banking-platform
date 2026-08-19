@@ -46,3 +46,96 @@ services:
       - "8080:8080"
     depends_on:
       - account-db
+
+  contacts:
+    build:
+      context: ./app-source/src/accounts/contacts
+      dockerfile: ../../../../docker/contacts/Dockerfile
+    container_name: contacts
+    environment:
+      VERSION: "v1"
+      TOKEN_EXPIRY_SECONDS: "3600"
+      PRIV_KEY_PATH: /keys/jwtRS256.key
+      PUB_KEY_PATH: /keys/jwtRS256.key.pub
+      ACCOUNTS_DB_URI: postgresql://admin:admin@accounts-db:5432/accounts_db
+      ENABLE_TRACING: "false"
+    volumes:
+      - ./local-secrets:/keys
+    ports:
+        - "8081:8081"
+    depends_on:
+      - account-db
+
+  ledgerwriter:
+    build:
+      context: ./app-source/src/ledger/ledgerwriter
+      dockerfile: ../../../../docker/ledgerwriter/Dockerfile    
+    container_name: ledgerwriter-local
+    hostname: ledgerwriter-local
+    environment:
+      VERSION: "v1"
+      BALANCES_API_ADDR: "http://balancereader:8083"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/ledger_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      PUB_KEY_PATH: /keys/jwtRS256.key.pub  
+      LEDGER_DB_URI: postgresql://admin:admin@ledger-db:5432/ledger_db
+      LOCAL_ROUTING_NUM: "883745000"
+      PORT: "8082"
+      ENABLE_TRACING: "false"
+      ENABLE_METRICS: "false"
+    volumes:
+      - ./local-secrets:/keys:ro
+    ports:
+      - "8082:8082"
+    depends_on:
+      - ledger_db
+      - balancereader
+
+  balancereader:
+    build:
+      context: ./app-source/src/ledger/balancereader
+      dockerfile: ../../../../docker/balancereader/Dockerfile
+    container_name: balancereader-local
+    hostname: balancereader-local
+    environment:
+      VERSION: "v1"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/ledger_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      PUB_KEY_PATH: /keys/jwtRS256.key.pub  
+      LEDGER_DB_URI: postgresql://admin:admin@ledger-db:5432/ledger_db
+      PORT: "8083"
+      ENABLE_TRACING: "false"
+      ENABLE_METRICS: "false"
+      LOCAL_ROUTING_NUM: "883745000"
+      NAMESPACE: "local"
+    volumes:
+      - ./local-secrets:/keys:ro
+    ports:
+      - "8083:8083"
+    depends_on:
+      - ledger_db
+
+  transactionhistory:
+    build:
+      context: ./app-source/src/ledger/transactionhistory
+      dockerfile: ../../../../docker/transactionhistory/Dockerfile
+    container_name: transactionhistory-local
+    hostname: transactionhistory-local
+    environment:
+      VERSION: "v1"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/ledger_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      PUB_KEY_PATH: /keys/jwtRS256.key.pub
+      PORT: "8084"
+      LOCAL_ROUTING_NUM: "883745000"
+      ENABLE_TRACING: "false"
+      ENABLE_METRICS: "false"
+    volumes:
+      - ./local-secrets:/keys:ro
+    ports:
+      - "8084:8084"
+    depends_on:
+      - ledger_db

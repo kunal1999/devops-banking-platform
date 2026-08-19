@@ -8,5 +8,5 @@ WORKDIR /app
 COPY --from=builder /app ./
 RUN pip install uv
 COPY . . 
-EXPOSE 8080
-CMD [ "uv", "run","gunicorn", "-b", "0.0.0.0:8080", "frontend:create_app()" ]
+EXPOSE 8085
+CMD [ "uv", "run","gunicorn", "-b", "0.0.0.0:8085", "frontend:create_app()" ]
