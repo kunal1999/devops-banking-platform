@@ -139,3 +139,31 @@ services:
       - "8084:8084"
     depends_on:
       - ledger_db
+  frontend:
+    build:
+      context: ./app-source/src/frontend
+      dockerfile: ../../../docker/frontend/Dockerfile
+    container_name: frontend
+    environment:
+      VERSION: "v1"
+      PORT: "8080"
+      SCHEME: "http"
+      LOCAL_ROUTING_NUM: "883745000"
+      PUB_KEY_PATH: /keys/jwtRS256.key.pub
+      TRANSACTIONS_API_ADDR: "ledgerwriter-local:8082"
+      BALANCES_API_ADDR: "balancereader-local:8083"
+      HISTORY_API_ADDR: "transactionhistory-local:8084"
+      CONTACTS_API_ADDR: "contacts:8081"
+      USERSERVICE_API_ADDR: "userservice:8080"
+      ENABLE_TRACING: "false"
+      ENABLE_METRICS: "false"
+    volumes:
+      - ./local-secrets:/keys:ro
+    ports:
+      - "8085:8080"
+    depends_on:
+      - userservice
+      - contacts
+      - ledgerwriter
+      - balancereader
+      - transactionhistory
