@@ -8,5 +8,9 @@ WORKDIR /app
 COPY  --from=BUILDER /app /app
 RUN pip install uv
 COPY . .    
+
+RUN useradd --create-home appuser
+USER appuser
+
 EXPOSE 8080
 CMD ["uv","run","gunicorn", "-b", "0.0.0.0:8080", "userservice:create_app()"]
