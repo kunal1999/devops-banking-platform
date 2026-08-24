@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledger-db
+  namespace: bank-of-anthos
+spec:
+  selector:
+    app: ledger-db
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432

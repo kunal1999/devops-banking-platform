@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-db
+  namespace: bank-of-anthos
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: ledger-db
+
+  template:
+    metadata:
+      labels:
+        app: ledger-db
+
+    spec:
+      containers:
+      - name: ledger-db
+        image: postgres:15.3-alpine
+
+        env:
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_PASSWORD
+          value: admin
+        - name: POSTGRES_DB
+          value: ledger_db
+
+        ports:
+        - containerPort: 5432
+
+        volumeMounts:
+        - name: ledger-db-storage
+          mountPath: /var/lib/postgresql/data
+
+        - name: initdb
+          mountPath: /docker-entrypoint-initdb.d
+
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - admin
+            - -d
+            - ledger_db
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 5
+
+      volumes:
+      - name: ledger-db-storage
+        persistentVolumeClaim:
+          claimName: ledger-db-pvc
+
+      - name: initdb
+        configMap:
+          name: ledger-db-initdb

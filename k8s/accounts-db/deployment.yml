@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accounts-db
+  namespace: bank-of-anthos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accounts-db
+  template:
+    metadata:
+      labels:
+        app: accounts-db
+    spec:
+      containers:
+      - name: accounts-db
+        image: postgres:15.3-alpine
+        env:
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_PASSWORD
+          value: admin
+        - name: POSTGRES_DB
+          value: accounts_db
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: accounts-db-storage
+          mountPath: /var/lib/postgresql/data
+        - name: initdb
+          mountPath: /docker-entrypoint-initdb.d
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - admin
+            - -d
+            - accounts_db
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 5
+      volumes:
+      - name: accounts-db-storage
+        persistentVolumeClaim:
+          claimName: accounts-db-pvc
+      - name: initdb
+        configMap:
+          name: accounts-db-initdb
