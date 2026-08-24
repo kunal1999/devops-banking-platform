@@ -1,5 +1,3 @@
-version: v1
-
 services:
   account-db:
     image: postgres:15.3-alpine
@@ -12,6 +10,11 @@ services:
       - ./app-source/src/accounts/accounts-db/initdb:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d accounts_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   ledger_db:
     image: postgres:15.3-alpine
@@ -27,6 +30,11 @@ services:
       - ./app-source/src/ledger/ledger-db/initdb:/docker-entrypoint-initdb.d
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ledger_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   userservice:
     build:
@@ -45,7 +53,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - account-db
+      account-db:
+        condition: service_healthy
 
   contacts:
     build:
@@ -64,7 +73,8 @@ services:
     ports:
         - "8081:8081"
     depends_on:
-      - account-db
+      account-db:
+        condition: service_healthy
 
   ledgerwriter:
     build:
@@ -89,8 +99,10 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - ledger_db
-      - balancereader
+      ledger_db:
+        condition: service_healthy
+      balancereader:
+        condition: service_started
 
   balancereader:
     build:
@@ -115,7 +127,8 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - ledger_db
+      ledger_db:
+        condition: service_healthy
 
   transactionhistory:
     build:
@@ -138,7 +151,9 @@ services:
     ports:
       - "8084:8084"
     depends_on:
-      - ledger_db
+      ledger_db:
+        condition: service_healthy
+
   frontend:
     build:
       context: ./app-source/src/frontend
