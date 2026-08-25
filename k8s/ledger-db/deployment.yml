@@ -23,11 +23,20 @@ spec:
 
         env:
         - name: POSTGRES_USER
-          value: admin
+          valueFrom:
+            secretKeyRef:
+              name: ledger-db-credentials
+              key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
-          value: admin
+          valueFrom:
+            secretKeyRef:
+              name: ledger-db-credentials
+              key: POSTGRES_PASSWORD
         - name: POSTGRES_DB
-          value: ledger_db
+          valueFrom:
+            secretKeyRef:
+              name: ledger-db-credentials
+              key: POSTGRES_DB
 
         ports:
         - containerPort: 5432
@@ -59,4 +68,4 @@ spec:
 
       - name: initdb
         configMap:
-          name: ledger-db-initdb
+          name: ledger-db-init

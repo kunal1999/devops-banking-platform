@@ -18,11 +18,20 @@ spec:
         image: postgres:15.3-alpine
         env:
         - name: POSTGRES_USER
-          value: admin
+          valueFrom:
+            secretKeyRef:
+              name: accounts-db-credentials
+              key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
-          value: admin
+          valueFrom:
+            secretKeyRef:
+              name: accounts-db-credentials
+              key: POSTGRES_PASSWORD
         - name: POSTGRES_DB
-          value: accounts_db
+          valueFrom:
+            secretKeyRef:
+              name: accounts-db-credentials
+              key: POSTGRES_DB
         ports:
         - containerPort: 5432
         volumeMounts:
@@ -48,4 +57,4 @@ spec:
           claimName: accounts-db-pvc
       - name: initdb
         configMap:
-          name: accounts-db-initdb
+          name: accounts-db-init
