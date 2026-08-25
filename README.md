@@ -13,7 +13,7 @@ manifests, CI/CD, monitoring — built from scratch, by me.
 ## Architecture
 
 <p align="center">
-  <img src="./architecture-diagram.png" alt="Banking Platform Architecture" width="100%">
+  <img src="./architecture diagram.png" alt="Banking Platform Architecture" width="100%">
 </p>
 
 3-tier architecture: a Flask frontend, five backend microservices (Python + Java) 
