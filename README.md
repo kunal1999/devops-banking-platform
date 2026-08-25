@@ -17,29 +17,32 @@ manifests, CI/CD, monitoring — built from scratch, by me.
 </p>
 
 
+## 🏗️ Architecture
+
+```mermaid
 graph TB
 
     %% =========================
     %% Presentation Tier
     %% =========================
     subgraph Presentation["🎨 Presentation Tier"]
-        FE["🌐 frontend<br/>Python / Flask"]
+        FE["🌐 Frontend<br/>Python / Flask"]
     end
 
     %% =========================
     %% Application Tier
     %% =========================
-    subgraph Application["⚙️ Application / Logic Tier — Microservices"]
+    subgraph Application["⚙️ Application / Logic Tier"]
 
-        US["🐍 userservice<br/>Python<br/><small>Authentication • JWT</small>"]
+        US["🐍 Userservice<br/>Python<br/>Auth • JWT"]
 
-        CT["🐍 contacts<br/>Python<br/><small>Linked Accounts • Contacts</small>"]
+        CT["🐍 Contacts<br/>Python<br/>Linked Accounts"]
 
-        LW["☕ ledgerwriter<br/>Java<br/><small>Validate & Write Transactions</small>"]
+        LW["☕ Ledgerwriter<br/>Java<br/>Validate & Write Transactions"]
 
-        BR["☕ balancereader<br/>Java<br/><small>Read Account Balances</small>"]
+        BR["☕ Balancereader<br/>Java<br/>Account Balances"]
 
-        TH["☕ transactionhistory<br/>Java<br/><small>Transaction History</small>"]
+        TH["☕ Transactionhistory<br/>Java<br/>Transaction History"]
 
     end
 
@@ -48,14 +51,14 @@ graph TB
     %% =========================
     subgraph Data["🗄️ Data Tier"]
 
-        ADB[("🐘 accounts-db<br/>PostgreSQL")]
+        ADB[("🐘 Accounts DB<br/>PostgreSQL")]
 
-        LDB[("🐘 ledger-db<br/>PostgreSQL")]
+        LDB[("🐘 Ledger DB<br/>PostgreSQL")]
 
     end
 
     %% =========================
-    %% Frontend → Services
+    %% Frontend → Microservices
     %% =========================
     FE -->|"HTTP :8080"| US
     FE -->|"HTTP :8081"| CT
@@ -64,7 +67,7 @@ graph TB
     FE -->|"HTTP :8084"| TH
 
     %% =========================
-    %% Service → Database
+    %% Microservices → Databases
     %% =========================
     US -->|"SQL"| ADB
     CT -->|"SQL"| ADB
@@ -74,14 +77,13 @@ graph TB
     TH -->|"SQL"| LDB
 
     %% =========================
-    %% Service → Service
+    %% Service-to-Service Dependency
     %% =========================
     LW -.->|"Balances API :8083"| BR
 
     %% =========================
     %% Styling
     %% =========================
-
     classDef frontend fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
     classDef python fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
     classDef java fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#7c2d12
@@ -91,6 +93,26 @@ graph TB
     class US,CT python
     class LW,BR,TH java
     class ADB,LDB database
+```
+
+### 🔗 Communication
+
+| Connection                       | Type         | Purpose                             |
+| -------------------------------- | ------------ | ----------------------------------- |
+| `frontend → userservice`         | HTTP         | Authentication & user operations    |
+| `frontend → contacts`            | HTTP         | Contact / linked account operations |
+| `frontend → ledgerwriter`        | HTTP         | Create transactions                 |
+| `frontend → balancereader`       | HTTP         | Retrieve balances                   |
+| `frontend → transactionhistory`  | HTTP         | Retrieve transaction history        |
+| `userservice → accounts-db`      | SQL          | User/account data                   |
+| `contacts → accounts-db`         | SQL          | Contact/account data                |
+| `ledgerwriter → ledger-db`       | SQL          | Write transactions                  |
+| `balancereader → ledger-db`      | SQL          | Read balances                       |
+| `transactionhistory → ledger-db` | SQL          | Read transaction history            |
+| `ledgerwriter → balancereader`   | Internal API | Balance validation                  |
+
+> **Note:** Solid arrows represent API/database communication. Dashed arrows represent **service-to-service dependencies**.
+
 3-tier architecture: a Flask frontend, five backend microservices (Python + Java) 
 handling authentication and transactions, and two Postgres databases.
 
