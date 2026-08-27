@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: accounts-db
   namespace: bank-of-anthos
 spec:
+  serviceName: accounts-db
   replicas: 1
   selector:
     matchLabels:
@@ -52,9 +53,14 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 5
       volumes:
-      - name: accounts-db-storage
-        persistentVolumeClaim:
-          claimName: accounts-db-pvc
       - name: initdb
         configMap:
           name: accounts-db-init
+  volumeClaimTemplates:
+  - metadata:
+      name: accounts-db-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

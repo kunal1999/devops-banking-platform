@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userservice
+  namespace: bank-of-anthos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userservice
+  template:
+    metadata:
+      labels:
+        app: userservice
+    spec:
+      containers:
+      - name: userservice
+        image: devops-banking-platform-userservice
+        ports:
+        - containerPort: 8080
+        env:
+        - name: VERSION
+          value: "v1"
+        - name: TOKEN_EXPIRY_SECONDS
+          value: "3600"
+        - name: PRIV_KEY_PATH
+          valueFrom:
+            secretKeyRef:
+              name: jwt-key
+              key: jwtRS256.key
+        - name: PUB_KEY_PATH
+          valueFrom:
+            secretKeyRef:
+              name: jwt-key
+              key: jwtRS256.key.pub
+        - name: ACCOUNTS_DB_URI
+          valueFrom:
+            secretKeyRef:
+              name: userservice-db-credentials
+              key: ACCOUNTS_DB_URI
+        - name: ENABLE_TRACING
+          value: "false"
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080

@@ -4,6 +4,7 @@ metadata:
   name: accounts-db
   namespace: bank-of-anthos
 spec:
+  clusterIP: None
   selector:
     app: accounts-db
   ports:
