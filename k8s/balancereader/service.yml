@@ -1,13 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ledger-db
+  name: balancereader
   namespace: bank-of-anthos
 spec:
-  clusterIP: None
   selector:
-    app: ledger-db
+    app: balancereader
   ports:
   - protocol: TCP
-    port: 5432
-    targetPort: 5432
+    port: 8082
+    targetPort: 8082

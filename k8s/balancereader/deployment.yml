@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: balancereader
+  namespace: bank-of-anthos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: balancereader
+  template:
+    metadata:
+      labels:
+        app: balancereader
+    spec:
+      containers:
+      - name: balancereader
+        image: devops-banking-platform-balancereader:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: balancereader-config
+              key: VERSION
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: balancereader-config
+              key: PORT
+        - name: LOCAL_ROUTING_NUM
+          valueFrom:
+            configMapKeyRef:
+              name: balancereader-config
+              key: LOCAL_ROUTING_NUM
+        - name: ENABLE_TRACING
+          valueFrom:
+            configMapKeyRef:
+              name: balancereader-config
+              key: ENABLE_TRACING
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: balancereader-config
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: ledger-db-credentials
+              key: POSTGRES_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ledger-db-credentials
+              key: POSTGRES_PASSWORD
+        - name: PUB_KEY_PATH
+          value: "/etc/secrets/jwtRS256.key.pub"
+
+        volumeMounts:
+        - name: keys-volume
+          mountPath: "/etc/secrets"
+          readOnly: true
+
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+      volumes:
+      - name: keys-volume
+        secret:
+          secretName: jwt-key

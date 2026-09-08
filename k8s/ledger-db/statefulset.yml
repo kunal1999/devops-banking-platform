@@ -1,11 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: ledger-db
   namespace: bank-of-anthos
 
 spec:
   replicas: 1
+  serviceName: ledger-db
 
   selector:
     matchLabels:
@@ -62,10 +63,14 @@ spec:
           failureThreshold: 5
 
       volumes:
-      - name: ledger-db-storage
-        persistentVolumeClaim:
-          claimName: ledger-db-pvc
-
       - name: initdb
         configMap:
           name: ledger-db-init
+  volumeClaimTemplates:
+  - metadata:
+      name: ledger-db-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

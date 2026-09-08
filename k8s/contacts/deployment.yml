@@ -1,30 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
-  name: userservice
+  name: contacts
   namespace: bank-of-anthos
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: userservice
+      app: contacts
   template:
     metadata:
       labels:
-        app: userservice
+        app: contacts
     spec:
       containers:
-      - name: userservice
-        image: devops-banking-platform-userservice:latest
+      - name: contacts
+        image: devops-banking-platform-contacts:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8080
+        - containerPort: 8081
         env:
         - name: VERSION
           value: "v1"
         - name: TOKEN_EXPIRY_SECONDS
           value: "3600"
-        # 1. FIXED: Set these to literal file paths instead of loading raw secrets text
         - name: PRIV_KEY_PATH
           value: "/etc/secrets/jwtRS256.key"
         - name: PUB_KEY_PATH
@@ -32,19 +32,21 @@ spec:
         - name: ACCOUNTS_DB_URI
           valueFrom:
             secretKeyRef:
-              name: userservice-db-credentials
+              name: contacts-db-credentials
               key: ACCOUNTS_DB_URI
         - name: ENABLE_TRACING
           value: "false"
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 5
 
         volumeMounts:
         - name: keys-volume
           mountPath: "/etc/secrets"
           readOnly: true
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
 
       volumes:
       - name: keys-volume

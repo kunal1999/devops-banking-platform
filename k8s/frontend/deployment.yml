@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: bank-of-anthos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: devops-banking-platform-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: VERSION
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: PORT
+        - name: SCHEME
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: SCHEME
+        - name: LOCAL_ROUTING_NUM
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: LOCAL_ROUTING_NUM
+        - name: ENABLE_TRACING
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: ENABLE_TRACING
+        - name: TRANSACTIONS_API_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: TRANSACTIONS_API_ADDR
+        - name: BALANCES_API_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: BALANCES_API_ADDR
+        - name: HISTORY_API_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: HISTORY_API_ADDR
+        - name: CONTACTS_API_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: CONTACTS_API_ADDR
+        - name: USERSERVICE_API_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: USERSERVICE_API_ADDR
+        - name: PUB_KEY_PATH
+          value: "/etc/secrets/jwtRS256.key.pub"
+
+        volumeMounts:
+        - name: keys-volume
+          mountPath: "/etc/secrets"
+          readOnly: true
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+      volumes:
+      - name: keys-volume
+        secret:
+          secretName: jwt-key
