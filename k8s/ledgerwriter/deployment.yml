@@ -75,6 +75,14 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
 
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+
       volumes:
       - name: keys-volume
         secret:

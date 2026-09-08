@@ -52,6 +52,14 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 5
           failureThreshold: 5
+
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 2Gi
+            cpu: 1000m
       volumes:
       - name: initdb
         configMap:

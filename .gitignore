@@ -1,1 +1,4 @@
 local-secrets/
+# Kubernetes secrets
+*-secret.yaml
+*secret*.yaml
