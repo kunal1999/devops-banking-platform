@@ -480,19 +480,21 @@ eksctl delete cluster --name devops-banking-platform --region us-east-1
 
 ## 📁 Project Structure
 
+## 📁 Project Structure
+
 ```
 devops-banking-platform/
-├── README.md                           # This file
-├── .github/workflows/
-│   └── build-and-push.yml             # GitHub Actions CI/CD pipeline
-├── docker/
+├── .github/
+│   └── workflows/
+│       └── build-and-push.yml         # GitHub Actions CI/CD pipeline
+├── docker/                             # All Dockerfiles (one per service)
 │   ├── userservice/Dockerfile
 │   ├── contacts/Dockerfile
 │   ├── ledgerwriter/Dockerfile
 │   ├── balancereader/Dockerfile
 │   ├── transactionhistory/Dockerfile
 │   └── frontend/Dockerfile
-├── k8s/
+├── k8s/                                # Kubernetes manifests
 │   ├── kind-config.yaml               # 3-node kind cluster config
 │   ├── ingress.yml                    # Ingress routing (optional)
 │   ├── accounts-db/
@@ -506,15 +508,45 @@ devops-banking-platform/
 │   │   ├── service.yml
 │   │   └── hpa.yml                    # Auto-scaler
 │   ├── contacts/
+│   │   ├── deployment.yml
+│   │   ├── service.yml
+│   │   └── hpa.yml
 │   ├── ledgerwriter/
+│   │   ├── deployment.yml
+│   │   ├── service.yml
+│   │   └── hpa.yml
 │   ├── balancereader/
+│   │   ├── deployment.yml
+│   │   ├── service.yml
+│   │   └── hpa.yml
 │   ├── transactionhistory/
+│   │   ├── deployment.yml
+│   │   ├── service.yml
+│   │   └── hpa.yml
 │   └── frontend/
-├── app-source/                        # Google's Bank of Anthos (submodule)
-├── docker-compose.yml                 # Local Docker Compose (dev)
-└── local-secrets/
-    ├── jwtRS256.key
-    └── jwtRS256.key.pub
+│       ├── deployment.yml
+│       ├── service.yml
+│       └── hpa.yml
+├── app-source/                        # Google's Bank of Anthos (git submodule)
+│   └── src/
+│       ├── accounts/
+│       │   ├── userservice/           # Python auth service
+│       │   ├── contacts/              # Python contacts service
+│       │   └── accounts-db/
+│       ├── ledger/
+│       │   ├── ledgerwriter/          # Java transaction writer
+│       │   ├── balancereader/         # Java balance reader
+│       │   ├── transactionhistory/    # Java history reader
+│       │   └── ledger-db/
+│       └── frontend/                  # Python Flask UI
+├── local-secrets/                     # JWT keys (git-ignored in production)
+│   ├── jwtRS256.key
+│   └── jwtRS256.key.pub
+├── docker-compose.yml                 # Local Docker Compose environment
+├── .gitignore                         # Git ignore rules
+├── .gitmodules                        # Git submodule configuration
+├── README.md                          # This file
+└── architecture-diagram.png           # Visual architecture (if present)
 ```
 
 ---
