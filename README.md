@@ -286,6 +286,8 @@ Open `http://localhost:3000`
 - Username: `admin`
 - Password: (check GitHub Actions logs or decode from Secret)
 
+- ![Grafana KBS Dashboard](dashboard.png)
+
 ---
 
 ## 🔄 CI/CD Pipeline (GitHub Actions)
