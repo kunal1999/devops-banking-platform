@@ -85,3 +85,21 @@ jobs:
 
     - name: Workflow completed
       run: echo "All images built and pushed successfully to Docker Hub!"
+
+    - name: Update Kubernetes manifests with new image tags
+      run: |
+        # Update all deployment files with new image tags
+        sed -i "s|image: .*devops-banking-platform-userservice:.*|image: ${{ secrets.DOCKER_USERNAME }}/devops-banking-platform-userservice:${{ github.sha }}|g" k8s/userservice/deployment.yml
+        sed -i "s|image: .*devops-banking-platform-contacts:.*|image: ${{ secrets.DOCKER_USERNAME }}/devops-banking-platform-contacts:${{ github.sha }}|g" k8s/contacts/deployment.yml
+        sed -i "s|image: .*devops-banking-platform-ledgerwriter:.*|image: ${{ secrets.DOCKER_USERNAME }}/devops-banking-platform-ledgerwriter:${{ github.sha }}|g" k8s/ledgerwriter/deployment.yml
+        sed -i "s|image: .*devops-banking-platform-balancereader:.*|image: ${{ secrets.DOCKER_USERNAME }}/devops-banking-platform-balancereader:${{ github.sha }}|g" k8s/balancereader/deployment.yml
+        sed -i "s|image: .*devops-banking-platform-transactionhistory:.*|image: ${{ secrets.DOCKER_USERNAME }}/devops-banking-platform-transactionhistory:${{ github.sha }}|g" k8s/transactionhistory/deployment.yml
+        sed -i "s|image: .*devops-banking-platform-frontend:.*|image: ${{ secrets.DOCKER_USERNAME }}/devops-banking-platform-frontend:${{ github.sha }}|g" k8s/frontend/deployment.yml
+
+    - name: Commit and push updated manifests
+      run: |
+        git config --local user.email "github-actions@github.com"
+        git config --local user.name "GitHub Actions"
+        git add k8s/*/deployment.yml
+        git commit -m "Update K8s manifests with new image tags - ${{ github.sha }}" || echo "No changes to commit"
+        git push
