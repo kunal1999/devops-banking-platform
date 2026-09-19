@@ -480,7 +480,6 @@ eksctl delete cluster --name devops-banking-platform --region us-east-1
 
 ---
 
-## 📁 Project Structure
 
 ## 📁 Project Structure
 
